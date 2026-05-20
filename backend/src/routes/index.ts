@@ -1,0 +1,19 @@
+import { Router } from 'express';
+import wardrobeRouter from './wardrobe.js';
+import outfitsRouter from './outfits.js';
+import accessoriesRouter from './accessories.js';
+import usersRouter from './users.js';
+import photosRouter from './photos.js';
+import insightsRouter from './insights.js';
+
+const router = Router();
+
+// Register all route modules
+router.use(wardrobeRouter);
+router.use(outfitsRouter);
+router.use(accessoriesRouter);
+router.use(usersRouter);
+router.use(photosRouter);
+router.use(insightsRouter);
+
+export default router;

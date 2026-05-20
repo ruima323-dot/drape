@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cream-100 text-charcoal font-sans antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  /* Occasion context color shifts */
+  .occasion-work {
+    @apply bg-occasion-work-bg text-occasion-work;
+  }
+
+  .occasion-casual {
+    @apply bg-occasion-casual-bg text-occasion-casual;
+  }
+
+  .occasion-night {
+    @apply bg-occasion-night-bg text-occasion-night;
+  }
+
+  /* Occasion badges */
+  .badge-work {
+    @apply bg-occasion-work text-white text-xs font-medium px-2.5 py-0.5 rounded-pill;
+  }
+
+  .badge-casual {
+    @apply bg-occasion-casual text-white text-xs font-medium px-2.5 py-0.5 rounded-pill;
+  }
+
+  .badge-night {
+    @apply bg-occasion-night text-white text-xs font-medium px-2.5 py-0.5 rounded-pill;
+  }
+
+  /* Card base */
+  .drape-card {
+    @apply bg-white rounded-card shadow-card p-card-md transition-shadow duration-200 hover:shadow-card-hover;
+  }
+
+  .drape-card-elevated {
+    @apply bg-white rounded-card-lg shadow-card-elevated p-card-lg;
+  }
+}
