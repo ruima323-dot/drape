@@ -3,7 +3,7 @@ FROM node:20-slim
 WORKDIR /app
 
 # Copy root package files
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.base.json ./
 COPY shared/package.json shared/
 COPY backend/package.json backend/
 
