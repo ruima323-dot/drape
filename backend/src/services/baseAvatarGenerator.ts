@@ -38,7 +38,8 @@ Dress them in:
 
 The photo should be:
 - Full body shot, head to toe visible
-- Standing in a relaxed, natural pose
+- Standing STRAIGHT with head level and facing forward — do NOT copy any head tilt, lean, or angle from the selfie
+- Arms relaxed at sides, shoulders level and even
 - Camera positioned at waist height (not eye level) to capture natural full-body proportions
 - Clean white/light grey studio background
 - Soft, even studio lighting with gentle fill light
