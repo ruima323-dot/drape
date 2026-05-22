@@ -7,7 +7,7 @@ import { pool } from '../db/connection.js';
  */
 export function queueThumbnailGeneration(
   itemId: string,
-  item: { type: string; color: string; material: string }
+  item: { type: string; color: string; material: string; details?: string }
 ): void {
   if (!THUMBNAIL_ENABLED) {
     return;
@@ -38,7 +38,7 @@ export function queueThumbnailGeneration(
  * All items in a batch are processed in parallel for speed.
  */
 export function queueThumbnailBeautification(
-  items: { itemId: string; cropUrl: string; type: string; color: string; material: string }[]
+  items: { itemId: string; cropUrl: string; type: string; color: string; material: string; details?: string }[]
 ): void {
   if (!THUMBNAIL_ENABLED || items.length === 0) {
     return;
@@ -47,9 +47,9 @@ export function queueThumbnailBeautification(
   setImmediate(async () => {
     // Process all items in parallel
     await Promise.allSettled(
-      items.map(async ({ itemId, cropUrl, type, color, material }) => {
+      items.map(async ({ itemId, cropUrl, type, color, material, details }) => {
         try {
-          const beautifiedUrl = await beautifyThumbnail(cropUrl, { type, color, material });
+          const beautifiedUrl = await beautifyThumbnail(cropUrl, { type, color, material, details });
           if (beautifiedUrl) {
             await pool.query(
               'UPDATE wardrobe_items SET image_url = $1 WHERE id = $2',

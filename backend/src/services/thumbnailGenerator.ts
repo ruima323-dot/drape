@@ -40,13 +40,14 @@ export function setThumbnailClient(c: unknown): void {
  * @returns The URL path to the generated thumbnail, or null if disabled.
  */
 export async function generateItemThumbnail(
-  item: { type: string; color: string; material: string }
+  item: { type: string; color: string; material: string; details?: string }
 ): Promise<string | null> {
   if (!THUMBNAIL_ENABLED) {
     return null;
   }
 
-  const prompt = `A single ${item.color} ${item.material} ${item.type}, flat lay on white background, minimal style, product photography, no model, centered`;
+  const detailsDesc = item.details ? `, ${item.details}` : '';
+  const prompt = `A single ${item.color} ${item.material} ${item.type}${detailsDesc}. Flat lay on white background, minimal style, product photography, no model, no person, just the garment centered. Show the item exactly as described — correct neckline, sleeve length, and fit.`;
 
   const response = await getClient().images.generate({
     model: 'gpt-image-1',
@@ -90,7 +91,7 @@ export async function generateItemThumbnail(
  */
 export async function beautifyThumbnail(
   cropUrl: string,
-  item: { type: string; color: string; material: string }
+  item: { type: string; color: string; material: string; details?: string }
 ): Promise<string | null> {
   if (!THUMBNAIL_ENABLED) {
     return null;
@@ -112,7 +113,8 @@ export async function beautifyThumbnail(
   const base64Crop = cropBuffer.toString('base64');
 
   // Ask GPT-4o to describe the exact item from the crop, then generate a clean version
-  const prompt = `Generate a clean flat-lay product image of this exact ${item.color} ${item.material} ${item.type} on a plain white background. Match the exact color, pattern, texture, and style of the item shown in the reference image. No model, no body, just the garment laid flat, centered, product photography style.`;
+  const detailsDesc = item.details ? ` Details: ${item.details}.` : '';
+  const prompt = `Generate a clean flat-lay product image of this exact ${item.color} ${item.material} ${item.type} on a plain white background.${detailsDesc} Match the exact color, pattern, texture, neckline, sleeve length, and style. No model, no body, just the garment laid flat, centered, product photography style.`;
 
   try {
     const response = await getClient().images.generate({

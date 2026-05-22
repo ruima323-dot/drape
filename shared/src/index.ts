@@ -142,6 +142,7 @@ export interface IdentifiedItem {
   type: string;
   color: string;
   material: string;
+  details?: string;
   bbox?: [number, number, number, number]; // [top, left, bottom, right] as percentages
   thumbnailUrl?: string;
 }

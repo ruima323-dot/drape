@@ -38,7 +38,7 @@ export function resetClient(): void {
  * - color: matched against KNOWN_COLORS (case-insensitive), falls back to "unknown"
  * - material: matched against KNOWN_MATERIALS (case-insensitive), falls back to "unknown"
  */
-export function normalizeItem(raw: { type: string; color: string; material: string }): IdentifiedItem {
+export function normalizeItem(raw: { type: string; color: string; material: string; details?: string }): IdentifiedItem {
   const normalizedType = findMatch(raw.type, KNOWN_TYPES) ?? raw.type.toLowerCase();
   const normalizedColor = findMatch(raw.color, KNOWN_COLORS) ?? 'unknown';
   const normalizedMaterial = findMatch(raw.material, KNOWN_MATERIALS) ?? 'unknown';
@@ -47,6 +47,7 @@ export function normalizeItem(raw: { type: string; color: string; material: stri
     type: normalizedType,
     color: normalizedColor,
     material: normalizedMaterial,
+    details: raw.details,
   };
 }
 
@@ -84,9 +85,17 @@ export async function analyzePhoto(imagePath: string): Promise<VisionAnalysisRes
 
     const prompt = `Identify all clothing items and shoes visible in this photo. Return a JSON array where each item has:
 - type (e.g., shirt, pants, dress, sneakers, boots)
-- color (e.g., navy, black, white)
-- material (e.g., cotton, denim, silk, leather, suede)
-- bbox: approximate bounding box as [top, left, bottom, right] in percentages (0-100) of the image dimensions, indicating where this item appears in the photo
+- color (e.g., navy, black, white, cream)
+- material (e.g., cotton, denim, silk, leather, suede, wool, linen, polyester)
+- details: a short description of distinguishing features. Include:
+  * Neckline (crew neck, v-neck, collared, turtleneck, scoop neck, off-shoulder, etc.)
+  * Sleeve length (sleeveless, short sleeve, 3/4 sleeve, long sleeve)
+  * Fit (slim, regular, oversized, cropped, relaxed)
+  * Pattern (solid, striped, plaid, floral, graphic, etc.)
+  * Any other notable features (buttons, zipper, hood, pockets, pleats, etc.)
+- bbox: approximate bounding box as [top, left, bottom, right] in percentages (0-100) of the image dimensions
+
+Be VERY precise about what you see. If the shirt has no collar, say "crew neck" or "round neck" — do NOT say "collared". If pants are wide-leg, say so. Describe exactly what is in the photo.
 
 Focus on the main/central person if multiple people are visible. Include shoes/footwear. Do not include accessories like jewelry, watches, or bags.
 
@@ -95,7 +104,7 @@ Known colors: ${KNOWN_COLORS.join(', ')}
 Known materials: ${KNOWN_MATERIALS.join(', ')}
 
 Return ONLY a valid JSON array, no other text. Example format:
-[{"type": "shirt", "color": "navy", "material": "cotton", "bbox": [10, 20, 50, 80]}, {"type": "sneakers", "color": "white", "material": "leather", "bbox": [75, 25, 95, 75]}]`;
+[{"type": "sweater", "color": "cream", "material": "wool", "details": "crew neck, long sleeve, relaxed fit, solid, ribbed knit texture", "bbox": [10, 20, 55, 80]}, {"type": "sneakers", "color": "white", "material": "leather", "details": "low-top, lace-up, clean minimal design", "bbox": [75, 25, 95, 75]}]`;
 
     const response = await getClient().chat.completions.create({
       model: 'gpt-4o',
@@ -123,7 +132,7 @@ Return ONLY a valid JSON array, no other text. Example format:
 
     // Parse JSON from response (handle potential markdown code blocks)
     const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const rawItems = JSON.parse(jsonStr) as Array<{ type: string; color: string; material: string; bbox?: [number, number, number, number] }>;
+    const rawItems = JSON.parse(jsonStr) as Array<{ type: string; color: string; material: string; details?: string; bbox?: [number, number, number, number] }>;
 
     if (!Array.isArray(rawItems)) {
       return { success: false, items: [], error: 'Vision model returned invalid format' };
@@ -142,6 +151,7 @@ Return ONLY a valid JSON array, no other text. Example format:
         type: raw.type ?? '',
         color: raw.color ?? '',
         material: raw.material ?? '',
+        details: raw.details ?? undefined,
       });
 
       let thumbnailUrl: string | undefined;

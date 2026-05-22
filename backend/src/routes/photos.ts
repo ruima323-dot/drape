@@ -146,6 +146,7 @@ router.post('/photos/save', async (req: Request, res: Response) => {
           type: item.type,
           color: item.color,
           material: item.material,
+          details: item.details,
         });
       } else {
         // No crop available — generate AI thumbnail from description
@@ -153,6 +154,7 @@ router.post('/photos/save', async (req: Request, res: Response) => {
           type: item.type,
           color: item.color,
           material: item.material,
+          details: item.details,
         });
       }
     }
