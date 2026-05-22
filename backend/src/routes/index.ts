@@ -5,6 +5,7 @@ import accessoriesRouter from './accessories.js';
 import usersRouter from './users.js';
 import photosRouter from './photos.js';
 import insightsRouter from './insights.js';
+import chatRouter from './chat.js';
 
 const router = Router();
 
@@ -15,5 +16,6 @@ router.use(accessoriesRouter);
 router.use(usersRouter);
 router.use(photosRouter);
 router.use(insightsRouter);
+router.use(chatRouter);
 
 export default router;
