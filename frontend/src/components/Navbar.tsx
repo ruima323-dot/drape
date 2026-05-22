@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
+import { resolveImageUrl } from '../lib/imageUrl';
 import type { AvatarConfig } from '@drape/shared';
 
 const navItems = [
@@ -20,7 +21,7 @@ export default function Navbar() {
     api.get<{ avatarConfig: AvatarConfig | null }>('/users/me')
       .then((data) => {
         if (data.avatarConfig?.selfieUrl) {
-          setSelfieUrl(data.avatarConfig.selfieUrl);
+          setSelfieUrl(resolveImageUrl(data.avatarConfig.selfieUrl));
         }
       })
       .catch(() => {});
