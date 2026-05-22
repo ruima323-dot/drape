@@ -104,6 +104,19 @@ export default function Styling() {
     }
   };
 
+  const handleRegenerateBaseAvatar = async () => {
+    setIsGeneratingBaseAvatar(true);
+    setBaseAvatarUrl(null);
+    try {
+      const result = await api.post<{ baseAvatarUrl: string }>('/outfits/base-avatar', { force: true });
+      setBaseAvatarUrl(result.baseAvatarUrl);
+    } catch {
+      // Show error if needed
+    } finally {
+      setIsGeneratingBaseAvatar(false);
+    }
+  };
+
   const generateOutfit = useCallback(
     async (context: OccasionContext) => {
       setIsGenerating(true);
@@ -359,6 +372,18 @@ export default function Styling() {
             className="px-5 py-2.5 bg-charcoal text-cream-50 rounded-pill font-medium text-sm hover:bg-charcoal-light transition-colors"
           >
             Generate My Avatar
+          </button>
+        </div>
+      )}
+
+      {/* Regenerate Avatar button — shown when base avatar exists */}
+      {baseAvatarUrl && !outfit && !isGeneratingBaseAvatar && (
+        <div className="flex justify-center">
+          <button
+            onClick={handleRegenerateBaseAvatar}
+            className="px-3 py-1.5 text-xs text-charcoal-muted hover:text-charcoal hover:bg-cream-200 rounded-card transition-colors"
+          >
+            Regenerate Avatar
           </button>
         </div>
       )}
