@@ -14,12 +14,12 @@ import {
   deleteOutfitPhoto,
 } from '../db/repositories/index.js';
 import { queueThumbnailGeneration, queueThumbnailBeautification } from '../services/thumbnailQueue.js';
+import { UPLOAD_DIR } from '../config.js';
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
 const VALID_OCCASIONS: OccasionContext[] = ['work', 'casual', 'night_out'];
 const MAX_NOTE_LENGTH = 280;
-const UPLOAD_DIR = join(process.cwd(), 'uploaded-photos');
 
 // Ensure upload directory exists
 if (!existsSync(UPLOAD_DIR)) {

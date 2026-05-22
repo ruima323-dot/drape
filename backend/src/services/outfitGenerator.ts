@@ -13,6 +13,7 @@ import type {
 import { buildPrompt, buildReferencePrompt } from './promptBuilder.js';
 import { generateImage } from './bedrockImageService.js';
 import { createGeneratedOutfit } from '../db/repositories/generatedOutfitRepository.js';
+import { IMAGES_DIR, SELFIES_DIR } from '../config.js';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -36,9 +37,6 @@ function getClient(): OpenAI {
 }
 
 // ─── Local image storage ─────────────────────────────────────────────────────
-
-const IMAGES_DIR = join(process.cwd(), 'generated-images');
-const SELFIES_DIR = join(process.cwd(), 'uploaded-photos', 'selfies');
 
 function ensureImagesDir(): void {
   if (!existsSync(IMAGES_DIR)) {

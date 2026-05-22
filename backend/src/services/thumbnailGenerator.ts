@@ -2,12 +2,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { writeFile, mkdir, readFile } from 'fs/promises';
 import { join } from 'path';
 import OpenAI from 'openai';
+import { THUMBNAILS_DIR } from '../config.js';
 
 // ─── Configuration ───────────────────────────────────────────────────────────
 
 export const THUMBNAIL_ENABLED = process.env.ENABLE_THUMBNAILS !== 'false';
-
-const THUMBNAILS_DIR = join(process.cwd(), 'generated-images', 'thumbnails');
 
 // ─── Client ──────────────────────────────────────────────────────────────────
 

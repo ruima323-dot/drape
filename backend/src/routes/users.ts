@@ -8,12 +8,12 @@ import {
   updateAvatarConfig,
   updateStyleProfile,
 } from '../db/repositories/index.js';
+import { SELFIES_DIR } from '../config.js';
 
 const router = Router();
 
 // ─── Multer config for selfie uploads ────────────────────────────────────────
 
-const SELFIES_DIR = join(process.cwd(), 'uploaded-photos', 'selfies');
 mkdirSync(SELFIES_DIR, { recursive: true });
 
 const selfieStorage = multer.diskStorage({

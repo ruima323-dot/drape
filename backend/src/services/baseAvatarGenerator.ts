@@ -3,11 +3,9 @@ import { join } from 'path';
 import OpenAI, { toFile } from 'openai';
 import sharp from 'sharp';
 import type { AvatarConfig } from '@drape/shared';
+import { IMAGES_DIR, SELFIES_DIR } from '../config.js';
 
 // ─── Configuration ───────────────────────────────────────────────────────────
-
-const IMAGES_DIR = join(process.cwd(), 'generated-images');
-const SELFIES_DIR = join(process.cwd(), 'uploaded-photos', 'selfies');
 
 // ─── Client ──────────────────────────────────────────────────────────────────
 

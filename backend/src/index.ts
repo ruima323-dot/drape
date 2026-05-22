@@ -6,16 +6,15 @@ import { mkdirSync } from 'fs';
 import { authMiddleware } from './middleware/auth.js';
 import { ensureUser } from './middleware/ensureUser.js';
 import apiRouter from './routes/index.js';
+import { DATA_DIR, IMAGES_DIR, THUMBNAILS_DIR, UPLOAD_DIR, SELFIES_DIR } from './config.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
-// Ensure thumbnails directory exists
-mkdirSync(join(process.cwd(), 'generated-images', 'thumbnails'), { recursive: true });
-
-// Ensure selfies directory exists
-mkdirSync(join(process.cwd(), 'uploaded-photos', 'selfies'), { recursive: true });
+// Ensure storage directories exist
+mkdirSync(THUMBNAILS_DIR, { recursive: true });
+mkdirSync(SELFIES_DIR, { recursive: true });
 
 // CORS — allow the frontend origin
 app.use(
@@ -29,10 +28,10 @@ app.use(
 app.use(express.json());
 
 // Serve generated images statically (no auth required)
-app.use('/api/images', express.static(join(process.cwd(), 'generated-images')));
+app.use('/api/images', express.static(IMAGES_DIR));
 
 // Serve uploaded photos statically (no auth required)
-app.use('/api/uploads', express.static(join(process.cwd(), 'uploaded-photos')));
+app.use('/api/uploads', express.static(UPLOAD_DIR));
 
 // Public health check
 app.get('/api/health', (_req, res) => {
