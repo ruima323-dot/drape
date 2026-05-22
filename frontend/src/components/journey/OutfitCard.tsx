@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { JourneyEntry } from '@drape/shared';
+import { resolveImageUrl } from '../../lib/imageUrl';
 
 interface OutfitCardProps {
   outfit: JourneyEntry;
@@ -69,8 +70,8 @@ export default function OutfitCard({ outfit, onExpand, onDelete }: OutfitCardPro
 
   // Determine thumbnail
   const thumbnailUrl = isPhoto
-    ? outfit.photoUrl
-    : outfit.avatarImageUrl || outfit.imageUrl;
+    ? resolveImageUrl(outfit.photoUrl)
+    : resolveImageUrl(outfit.avatarImageUrl || outfit.imageUrl);
 
   // Show inline confirmation
   if (isConfirmingDelete) {
@@ -241,7 +242,7 @@ export default function OutfitCard({ outfit, onExpand, onDelete }: OutfitCardPro
           {isPhoto && outfit.photoUrl && (
             <div className="rounded-card overflow-hidden bg-cream-100">
               <img
-                src={outfit.photoUrl}
+                src={resolveImageUrl(outfit.photoUrl)!}
                 alt="Full outfit photo"
                 className="w-full h-auto max-h-[400px] object-contain"
                 data-testid="outfit-full-image"
@@ -252,7 +253,7 @@ export default function OutfitCard({ outfit, onExpand, onDelete }: OutfitCardPro
           {!isPhoto && (outfit.imageUrl || outfit.avatarImageUrl) && (
             <div className="rounded-card overflow-hidden bg-cream-100">
               <img
-                src={outfit.imageUrl || outfit.avatarImageUrl}
+                src={resolveImageUrl(outfit.imageUrl || outfit.avatarImageUrl)!}
                 alt="Full outfit view"
                 className="w-full h-auto max-h-[400px] object-contain"
                 data-testid="outfit-full-image"

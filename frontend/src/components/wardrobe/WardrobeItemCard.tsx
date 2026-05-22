@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { WardrobeItem } from '@drape/shared';
+import { resolveImageUrl } from '../../lib/imageUrl';
 
 interface WardrobeItemCardProps {
   item: WardrobeItem;
@@ -57,6 +58,8 @@ export default function WardrobeItemCard({ item, onDelete }: WardrobeItemCardPro
 
   const showThumbnail = item.imageUrl && !imgError;
 
+  const thumbnailSrc = resolveImageUrl(item.imageUrl);
+
   return (
     <div className="drape-card flex flex-col gap-3 group" data-testid="wardrobe-item-card">
       {/* Thumbnail or shimmer placeholder */}
@@ -69,7 +72,7 @@ export default function WardrobeItemCard({ item, onDelete }: WardrobeItemCardPro
             />
           )}
           <img
-            src={item.imageUrl}
+            src={thumbnailSrc!}
             alt={`${item.color} ${item.material} ${item.type}`}
             className={`w-full h-40 object-contain rounded-card transition-opacity ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
             onLoad={() => setImgLoaded(true)}

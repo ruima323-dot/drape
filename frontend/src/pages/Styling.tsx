@@ -8,6 +8,7 @@ import type {
   AccessorySuggestion,
 } from '@drape/shared';
 import { api } from '../lib/api';
+import { resolveImageUrl } from '../lib/imageUrl';
 import ContextToggle from '../components/today/ContextToggle';
 import AvatarCard from '../components/today/AvatarCard';
 import AvatarConfigModal from '../components/today/AvatarConfigModal';
@@ -337,8 +338,8 @@ export default function Styling() {
       {/* Avatar card */}
       <AvatarCard
         occasionContext={activeContext}
-        outfitImageUrl={outfit?.imageUrl ? `http://localhost:3001${outfit.imageUrl}` : null}
-        baseAvatarUrl={baseAvatarUrl ? `http://localhost:3001${baseAvatarUrl}` : null}
+        outfitImageUrl={outfit?.imageUrl ? resolveImageUrl(outfit.imageUrl) : null}
+        baseAvatarUrl={baseAvatarUrl ? resolveImageUrl(baseAvatarUrl) : null}
         isLoading={isGenerating}
         isLoadingBaseAvatar={isGeneratingBaseAvatar}
         activeAccessories={activeAccessoryDetails}
