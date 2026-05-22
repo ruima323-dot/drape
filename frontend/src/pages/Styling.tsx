@@ -61,6 +61,7 @@ export default function Styling() {
   // Base avatar state
   const [baseAvatarUrl, setBaseAvatarUrl] = useState<string | null>(null);
   const [isGeneratingBaseAvatar, setIsGeneratingBaseAvatar] = useState(false);
+  const [hasSelfie, setHasSelfie] = useState(false);
 
   // Fetch user's saved accessories, profile, and base avatar on mount
   useEffect(() => {
@@ -74,23 +75,15 @@ export default function Styling() {
         setShelfAccessories(accessoryData.accessories ?? []);
         if (profileData.avatarConfig) {
           setAvatarConfig(profileData.avatarConfig);
+          if (profileData.avatarConfig.selfieUrl) {
+            setHasSelfie(true);
+          }
         }
         if (profileData.styleProfile && Object.keys(profileData.styleProfile.preferences).length > 0) {
           setHasStyleProfile(true);
         }
         if (baseAvatarData.baseAvatarUrl) {
           setBaseAvatarUrl(baseAvatarData.baseAvatarUrl);
-        } else if (profileData.avatarConfig?.selfieUrl) {
-          // No cached base avatar but user has a selfie — generate it
-          setIsGeneratingBaseAvatar(true);
-          try {
-            const result = await api.post<{ baseAvatarUrl: string }>('/outfits/base-avatar', {});
-            setBaseAvatarUrl(result.baseAvatarUrl);
-          } catch {
-            // Non-critical — will show placeholder
-          } finally {
-            setIsGeneratingBaseAvatar(false);
-          }
         }
       } catch {
         // Non-critical — shelf will be empty, config will use defaults
@@ -98,6 +91,18 @@ export default function Styling() {
     };
     fetchInitialData();
   }, []);
+
+  const handleGenerateBaseAvatar = async () => {
+    setIsGeneratingBaseAvatar(true);
+    try {
+      const result = await api.post<{ baseAvatarUrl: string }>('/outfits/base-avatar', { force: true });
+      setBaseAvatarUrl(result.baseAvatarUrl);
+    } catch {
+      // Show error if needed
+    } finally {
+      setIsGeneratingBaseAvatar(false);
+    }
+  };
 
   const generateOutfit = useCallback(
     async (context: OccasionContext) => {
@@ -345,6 +350,18 @@ export default function Styling() {
         activeAccessories={activeAccessoryDetails}
         onRemoveAccessory={handleRemoveAccessory}
       />
+
+      {/* Generate Avatar button — shown when user has selfie but no base avatar */}
+      {!baseAvatarUrl && !outfit && hasSelfie && !isGeneratingBaseAvatar && (
+        <div className="flex justify-center">
+          <button
+            onClick={handleGenerateBaseAvatar}
+            className="px-5 py-2.5 bg-charcoal text-cream-50 rounded-pill font-medium text-sm hover:bg-charcoal-light transition-colors"
+          >
+            Generate My Avatar
+          </button>
+        </div>
+      )}
 
       {/* Save button */}
       <div className="flex justify-center">
