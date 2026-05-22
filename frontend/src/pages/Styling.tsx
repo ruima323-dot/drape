@@ -95,7 +95,7 @@ export default function Styling() {
   const handleGenerateBaseAvatar = async () => {
     setIsGeneratingBaseAvatar(true);
     try {
-      const result = await api.post<{ baseAvatarUrl: string }>('/outfits/base-avatar', { force: true });
+      const result = await api.post<{ baseAvatarUrl: string }>('/outfits/base-avatar', {});
       setBaseAvatarUrl(result.baseAvatarUrl);
     } catch {
       // Show error if needed
