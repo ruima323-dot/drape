@@ -13,7 +13,7 @@ import {
   getOutfitPhotoById,
   deleteOutfitPhoto,
 } from '../db/repositories/index.js';
-import { queueThumbnailGeneration, queueThumbnailBeautification } from '../services/thumbnailQueue.js';
+import { queueThumbnailGeneration } from '../services/thumbnailQueue.js';
 import { UPLOAD_DIR } from '../config.js';
 
 // ─── Configuration ───────────────────────────────────────────────────────────
@@ -124,7 +124,6 @@ router.post('/photos/save', async (req: Request, res: Response) => {
 
     // Insert new wardrobe items
     const newWardrobeItemIds: string[] = [];
-    const itemsToBeautify: { itemId: string; cropUrl: string; type: string; color: string; material: string }[] = [];
 
     for (const item of deduplicationResult.newItems) {
       const wardrobeItem = await createWardrobeItem({
@@ -134,34 +133,17 @@ router.post('/photos/save', async (req: Request, res: Response) => {
         material: item.material,
         fit: 'regular',
         occasions: [occasionContext as OccasionContext],
-        imageUrl: item.thumbnailUrl ?? undefined,
+        imageUrl: undefined, // No image initially — AI thumbnail generated in background
       });
       newWardrobeItemIds.push(wardrobeItem.id);
 
-      if (item.thumbnailUrl) {
-        // Has a raw crop — queue beautification to replace it with a clean version
-        itemsToBeautify.push({
-          itemId: wardrobeItem.id,
-          cropUrl: item.thumbnailUrl,
-          type: item.type,
-          color: item.color,
-          material: item.material,
-          details: item.details,
-        });
-      } else {
-        // No crop available — generate AI thumbnail from description
-        queueThumbnailGeneration(wardrobeItem.id, {
-          type: item.type,
-          color: item.color,
-          material: item.material,
-          details: item.details,
-        });
-      }
-    }
-
-    // Queue beautification for all cropped items in parallel
-    if (itemsToBeautify.length > 0) {
-      queueThumbnailBeautification(itemsToBeautify);
+      // Generate AI thumbnail from description (skip raw crops entirely)
+      queueThumbnailGeneration(wardrobeItem.id, {
+        type: item.type,
+        color: item.color,
+        material: item.material,
+        details: item.details,
+      });
     }
 
     // Collect all wardrobe item IDs (new + existing matches)
