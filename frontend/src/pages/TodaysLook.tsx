@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import exifr from 'exifr';
 import type { IdentifiedItem, OccasionContext } from '@drape/shared';
+import { resolveImageUrl } from '../lib/imageUrl';
 import PhotoUploadArea from '../components/upload/PhotoUploadArea';
 import PhotoResultCard from '../components/upload/PhotoResultCard';
 import SavePhotoButton from '../components/upload/SavePhotoButton';
@@ -78,7 +79,7 @@ export default function TodaysLook() {
       if (!data.items || data.items.length === 0) {
         return {
           ...entry,
-          photoUrl: data.photoUrl,
+          photoUrl: resolveImageUrl(data.photoUrl),
           items: [],
           newItemIndices: new Set(),
           isAnalyzing: false,
@@ -89,7 +90,7 @@ export default function TodaysLook() {
 
       return {
         ...entry,
-        photoUrl: data.photoUrl,
+        photoUrl: resolveImageUrl(data.photoUrl),
         items: data.items,
         newItemIndices: new Set(data.items.map((_: IdentifiedItem, i: number) => i)),
         isAnalyzing: false,
