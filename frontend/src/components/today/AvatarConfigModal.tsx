@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { AvatarConfig } from '@drape/shared';
 import { api } from '../../lib/api';
 import { supabase } from '../../lib/supabase';
+import { resolveImageUrl } from '../../lib/imageUrl';
 
 interface AvatarConfigModalProps {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export default function AvatarConfigModal({
       setHeight(currentConfig.height ?? '');
       setWeight(currentConfig.weight ?? '');
       if (currentConfig.selfieUrl) {
-        setSelfiePreview(currentConfig.selfieUrl);
+        setSelfiePreview(resolveImageUrl(currentConfig.selfieUrl));
       }
     }
   }, [currentConfig]);
@@ -74,10 +75,10 @@ export default function AvatarConfigModal({
       }
 
       const result = await response.json();
-      setSelfiePreview(`${result.selfieUrl}?t=${Date.now()}`);
+      setSelfiePreview(resolveImageUrl(`${result.selfieUrl}?t=${Date.now()}`));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to upload selfie.');
-      setSelfiePreview(currentConfig?.selfieUrl ?? null);
+      setSelfiePreview(resolveImageUrl(currentConfig?.selfieUrl) ?? null);
     } finally {
       setIsUploading(false);
     }
