@@ -49,7 +49,8 @@ export default function SavePhotoButton({
         setSaveProgress({ current: i + 1, total: photos.length });
         const photo = photos[i];
 
-        const response = await fetch('/api/photos/save', {
+        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api';
+        const response = await fetch(`${apiBaseUrl}/photos/save`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

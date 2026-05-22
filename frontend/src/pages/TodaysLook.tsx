@@ -56,7 +56,8 @@ export default function TodaysLook() {
 
       const { data: sessionData } = await (await import('../lib/supabase')).supabase.auth.getSession();
       const token = sessionData.session?.access_token ?? '';
-      const response = await fetch('/api/photos/upload', {
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL ?? '/api';
+      const response = await fetch(`${apiBaseUrl}/photos/upload`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
