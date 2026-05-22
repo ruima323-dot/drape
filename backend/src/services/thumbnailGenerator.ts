@@ -45,8 +45,10 @@ export async function generateItemThumbnail(
     return null;
   }
 
-  const detailsDesc = item.details ? `, ${item.details}` : '';
-  const prompt = `A single ${item.color} ${item.material} ${item.type}${detailsDesc}. Flat lay on white background, minimal style, product photography, no model, no person, just the garment centered. Show the item exactly as described — correct neckline, sleeve length, and fit.`;
+  const detailsDesc = item.details ? ` Specific details: ${item.details}.` : '';
+  const prompt = `Product photo of a single ${item.color} ${item.material} ${item.type} laid flat on a plain white background.${detailsDesc} IMPORTANT: Generate EXACTLY what is described — if it says "crew neck" or "round neck", the garment must have NO collar, NO buttons at the neck, just a simple round neckline. If it says "long sleeve", show full-length sleeves. Do NOT add collars, buttons, or features that are not explicitly mentioned. Simple, clean product photography, one garment only, centered, no model.`;
+
+  console.log(`[thumbnailGenerator] Generating thumbnail for: ${item.type} | details: ${item.details ?? 'none'}`);
 
   const response = await getClient().images.generate({
     model: 'gpt-image-1',
