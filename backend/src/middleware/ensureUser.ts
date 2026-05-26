@@ -21,19 +21,25 @@ export async function ensureUser(
   try {
     // Check if user exists
     const result = await pool.query(
-      `SELECT id FROM users WHERE id = $1`,
+      `SELECT id, name FROM users WHERE id = $1`,
       [userId]
     );
 
-    if (result.rows.length === 0) {
-      // Try to get email and name from the auth token metadata
-      const authReq = req as AuthenticatedRequest;
-      const email = (authReq as unknown as { userEmail?: string }).userEmail || `user-${userId.slice(0, 8)}@drape.style`;
-      const name = (authReq as unknown as { userName?: string }).userName || 'New User';
+    const authReq = req as AuthenticatedRequest;
+    const email = authReq.userEmail || `user-${userId.slice(0, 8)}@drape.style`;
+    const name = authReq.userName || 'New User';
 
+    if (result.rows.length === 0) {
+      // Create new user record
       await pool.query(
         `INSERT INTO users (id, email, name) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING`,
         [userId, email, name]
+      );
+    } else if (result.rows[0].name === 'New User' && authReq.userName) {
+      // Update name if it's still the default and we have a real name from the token
+      await pool.query(
+        `UPDATE users SET name = $2, email = $3, updated_at = NOW() WHERE id = $1`,
+        [userId, authReq.userName, email]
       );
     }
   } catch {

@@ -21,12 +21,18 @@ const client = SUPABASE_URL
  */
 export interface AuthenticatedRequest extends Request {
   userId: string;
+  userEmail?: string;
+  userName?: string;
 }
 
 interface SupabaseJwtPayload {
   sub: string;
   email?: string;
   role?: string;
+  user_metadata?: {
+    full_name?: string;
+    name?: string;
+  };
 }
 
 /**
@@ -109,6 +115,8 @@ export function authMiddleware(
     verifyToken(token)
       .then((payload) => {
         (req as AuthenticatedRequest).userId = payload.sub;
+        (req as AuthenticatedRequest).userEmail = payload.email;
+        (req as AuthenticatedRequest).userName = payload.user_metadata?.full_name || payload.user_metadata?.name;
         next();
       })
       .catch(() => {
