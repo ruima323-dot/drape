@@ -7,6 +7,7 @@ import photosRouter from './photos.js';
 import insightsRouter from './insights.js';
 import chatRouter from './chat.js';
 import recommendationsRouter from './recommendations.js';
+import fundamentalsRouter from './fundamentals.js';
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use(photosRouter);
 router.use(insightsRouter);
 router.use(chatRouter);
 router.use(recommendationsRouter);
+router.use(fundamentalsRouter);
 
 export default router;
