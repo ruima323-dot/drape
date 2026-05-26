@@ -5,6 +5,7 @@ import WardrobeTextInput from '../components/wardrobe/WardrobeTextInput';
 import WardrobeGroupedView from '../components/wardrobe/WardrobeGroupedView';
 import WardrobeEmptyState from '../components/wardrobe/WardrobeEmptyState';
 import ViewToggle from '../components/wardrobe/ViewToggle';
+import DailyPick from '../components/wardrobe/DailyPick';
 
 export default function MyWardrobe() {
   const [items, setItems] = useState<WardrobeItem[]>([]);
@@ -46,6 +47,9 @@ export default function MyWardrobe() {
       <h1 className="text-3xl font-display font-semibold text-charcoal">
         My Wardrobe
       </h1>
+
+      {/* Daily Pick */}
+      <DailyPick />
 
       <div className="drape-card">
         <WardrobeTextInput onItemsAdded={handleItemsAdded} />
