@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import type { AvatarConfig } from '@drape/shared';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
+import { resolveImageUrl } from '../lib/imageUrl';
+import { supabase } from '../lib/supabase';
 
 interface StylePreferences {
   aesthetic?: string[];
@@ -48,11 +51,31 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
+  // Avatar state
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [location, setLocation] = useState('');
+  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+
   useEffect(() => {
-    api.get<{ styleProfile: { preferences: StylePreferences } | null }>('/users/me')
+    api.get<{ styleProfile: { preferences: StylePreferences } | null; avatarConfig: AvatarConfig | null }>('/users/me')
       .then((data) => {
         if (data.styleProfile?.preferences) {
           setPreferences(data.styleProfile.preferences);
+        }
+        if (data.avatarConfig) {
+          setAvatarConfig(data.avatarConfig);
+          setHeight(data.avatarConfig.height ?? '');
+          setWeight(data.avatarConfig.weight ?? '');
+          setLocation(data.avatarConfig.location ?? '');
+          if (data.avatarConfig.selfieUrl) {
+            setSelfiePreview(resolveImageUrl(data.avatarConfig.selfieUrl));
+          }
         }
       })
       .catch(() => {})
@@ -81,13 +104,62 @@ export default function Profile() {
     setIsSaving(true);
     setSaveMessage(null);
     try {
+      // Save style preferences
       await api.post('/users/style-profile', { preferences });
+
+      // Save avatar config
+      const config: AvatarConfig = {
+        bodyType: avatarConfig?.bodyType ?? 'average',
+        skinTone: avatarConfig?.skinTone ?? 'medium',
+        gender: avatarConfig?.gender ?? 'female',
+        height: height || undefined,
+        weight: weight || undefined,
+        location: location || undefined,
+        selfieUrl: avatarConfig?.selfieUrl,
+      };
+      await api.put('/users/avatar', config);
+
       setSaveMessage('Saved!');
       setTimeout(() => setSaveMessage(null), 2000);
     } catch {
       setSaveMessage('Failed to save.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSelfieUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const localUrl = URL.createObjectURL(file);
+    setSelfiePreview(localUrl);
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('selfie', file);
+
+      const { data } = await supabase.auth.getSession();
+      const token = data.session?.access_token;
+
+      const response = await fetch(`${API_BASE_URL}/users/selfie`, {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const result = await response.json();
+      setSelfiePreview(resolveImageUrl(`${result.selfieUrl}?t=${Date.now()}`));
+      setAvatarConfig((prev) => prev ? { ...prev, selfieUrl: result.selfieUrl } : null);
+    } catch {
+      setSelfiePreview(avatarConfig?.selfieUrl ? resolveImageUrl(avatarConfig.selfieUrl) : null);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -117,6 +189,89 @@ export default function Profile() {
           {user?.name ?? 'Your'} style preferences
         </p>
       </div>
+
+      {/* Avatar & Body */}
+      <section className="drape-card space-y-4">
+        <h2 className="text-sm font-semibold text-charcoal uppercase tracking-wide">Your Avatar</h2>
+        <p className="text-xs text-charcoal-muted">Used to generate outfit previews that look like you</p>
+
+        {/* Selfie */}
+        <div className="flex items-center gap-4">
+          {selfiePreview ? (
+            <img
+              src={selfiePreview}
+              alt="Your selfie"
+              className="w-20 h-20 rounded-full object-cover border-2 border-cream-400"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-cream-200 flex items-center justify-center text-charcoal-muted">
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              </svg>
+            </div>
+          )}
+          <div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="text-sm text-gold hover:text-gold-muted font-medium transition-colors disabled:opacity-50"
+            >
+              {isUploading ? 'Uploading...' : selfiePreview ? 'Change selfie' : 'Upload selfie'}
+            </button>
+            <p className="text-xs text-charcoal-muted mt-0.5">Face photo for avatar generation</p>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            capture="user"
+            onChange={handleSelfieUpload}
+            className="hidden"
+            aria-label="Select selfie photo"
+          />
+        </div>
+
+        {/* Height & Weight */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="height" className="block text-xs font-medium text-charcoal mb-1">Height</label>
+            <input
+              id="height"
+              type="text"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              placeholder="e.g., 5'10&quot; or 178cm"
+              className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+            />
+          </div>
+          <div>
+            <label htmlFor="weight" className="block text-xs font-medium text-charcoal mb-1">Weight</label>
+            <input
+              id="weight"
+              type="text"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder="e.g., 170 lbs or 77kg"
+              className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* Location */}
+        <div>
+          <label htmlFor="location" className="block text-xs font-medium text-charcoal mb-1">Location</label>
+          <input
+            id="location"
+            type="text"
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            placeholder="e.g., Boston, MA"
+            className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+          />
+          <p className="text-xs text-charcoal-muted mt-1">For weather-appropriate styling</p>
+        </div>
+      </section>
 
       {/* Aesthetic */}
       <section className="drape-card space-y-3">
