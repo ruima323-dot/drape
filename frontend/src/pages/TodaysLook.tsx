@@ -5,6 +5,7 @@ import { resolveImageUrl } from '../lib/imageUrl';
 import PhotoUploadArea from '../components/upload/PhotoUploadArea';
 import PhotoResultCard from '../components/upload/PhotoResultCard';
 import SavePhotoButton from '../components/upload/SavePhotoButton';
+import DailyPick from '../components/wardrobe/DailyPick';
 
 interface PhotoEntry {
   id: string;
@@ -212,6 +213,9 @@ export default function TodaysLook() {
           disabled={isAnyAnalyzing}
         />
       )}
+
+      {/* Daily Pick */}
+      {photos.length === 0 && <DailyPick />}
 
       {/* Analyzing progress */}
       {isAnyAnalyzing && analyzeProgress && (
