@@ -26,10 +26,14 @@ export async function ensureUser(
     );
 
     if (result.rows.length === 0) {
-      // Create user record — email and name will be updated later from the token
+      // Try to get email and name from the auth token metadata
+      const authReq = req as AuthenticatedRequest;
+      const email = (authReq as unknown as { userEmail?: string }).userEmail || `user-${userId.slice(0, 8)}@drape.style`;
+      const name = (authReq as unknown as { userName?: string }).userName || 'New User';
+
       await pool.query(
         `INSERT INTO users (id, email, name) VALUES ($1, $2, $3) ON CONFLICT (id) DO NOTHING`,
-        [userId, `user-${userId.slice(0, 8)}@drape.style`, 'New User']
+        [userId, email, name]
       );
     }
   } catch {

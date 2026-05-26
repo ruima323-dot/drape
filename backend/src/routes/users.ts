@@ -8,6 +8,7 @@ import {
   updateAvatarConfig,
   updateStyleProfile,
 } from '../db/repositories/index.js';
+import { pool } from '../db/connection.js';
 import { SELFIES_DIR } from '../config.js';
 
 const router = Router();
@@ -56,9 +57,36 @@ router.get('/users/me', async (req: Request, res: Response) => {
     res.json({
       avatarConfig: user.avatarConfig,
       styleProfile: user.styleProfile,
+      name: user.name,
     });
   } catch (err) {
     console.error('Error fetching user profile:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * PUT /api/users/name
+ * Update the user's display name.
+ */
+router.put('/users/name', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as AuthenticatedRequest).userId;
+    const { name } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      res.status(400).json({ error: 'name is required' });
+      return;
+    }
+
+    await pool.query(
+      `UPDATE users SET name = $2, updated_at = NOW() WHERE id = $1`,
+      [userId, name.trim()]
+    );
+
+    res.json({ name: name.trim() });
+  } catch (err) {
+    console.error('Error updating name:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
