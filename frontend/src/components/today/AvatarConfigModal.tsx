@@ -22,7 +22,6 @@ export default function AvatarConfigModal({
   const [location, setLocation] = useState(currentConfig?.location ?? '');
   const [height, setHeight] = useState(currentConfig?.height ?? '');
   const [weight, setWeight] = useState(currentConfig?.weight ?? '');
-  const [displayName, setDisplayName] = useState('');
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,14 +39,6 @@ export default function AvatarConfigModal({
       }
     }
   }, [currentConfig]);
-
-  // Fetch user name
-  useEffect(() => {
-    if (!isOpen) return;
-    api.get<{ name?: string }>('/users/me').then((data) => {
-      if (data.name) setDisplayName(data.name);
-    }).catch(() => {});
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -98,11 +89,6 @@ export default function AvatarConfigModal({
     setError(null);
 
     try {
-      // Update name if changed
-      if (displayName.trim()) {
-        await api.put('/users/name', { name: displayName.trim() });
-      }
-
       // Preserve existing config fields, update location
       const config: AvatarConfig = {
         bodyType: currentConfig?.bodyType ?? 'average',
@@ -212,24 +198,6 @@ export default function AvatarConfigModal({
               onChange={handleFileSelect}
               className="hidden"
               aria-label="Select selfie photo"
-            />
-          </div>
-
-          {/* Name */}
-          <div>
-            <label
-              htmlFor="displayName"
-              className="block text-sm font-medium text-charcoal mb-1.5"
-            >
-              Your Name
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="e.g., Rui"
-              className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
             />
           </div>
 
