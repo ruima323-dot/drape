@@ -61,20 +61,22 @@ export default function Navbar() {
           {/* User menu */}
           {user && (
             <div className="flex items-center gap-3">
-              {selfieUrl ? (
-                <img
-                  src={selfieUrl}
-                  alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover border border-cream-300"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center text-xs font-medium text-charcoal-muted">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="text-sm text-charcoal-muted hidden sm:inline">
-                {user.name}
-              </span>
+              <NavLink to="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                {selfieUrl ? (
+                  <img
+                    src={selfieUrl}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover border border-cream-300"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-cream-200 flex items-center justify-center text-xs font-medium text-charcoal-muted">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="text-sm text-charcoal-muted hidden sm:inline">
+                  {user.name}
+                </span>
+              </NavLink>
               <button
                 onClick={logout}
                 className="text-sm text-charcoal-muted hover:text-charcoal transition-colors"

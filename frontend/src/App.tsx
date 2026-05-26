@@ -6,6 +6,7 @@ import TodaysLook from './pages/TodaysLook';
 import Styling from './pages/Styling';
 import MyWardrobe from './pages/MyWardrobe';
 import OutfitJourney from './pages/OutfitJourney';
+import Profile from './pages/Profile';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
 
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/styling" element={<Styling />} />
             <Route path="/wardrobe" element={<MyWardrobe />} />
             <Route path="/journey" element={<OutfitJourney />} />
+            <Route path="/profile" element={<Profile />} />
           </Route>
         </Routes>
       </AuthProvider>
