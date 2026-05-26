@@ -12,6 +12,7 @@ interface Question {
   text: string;
   options: { value: string; label: string; emoji: string }[];
   multiple?: boolean;
+  freeText?: boolean;
 }
 
 const questions: Question[] = [
@@ -60,6 +61,12 @@ const questions: Question[] = [
       { value: 'confidence', label: 'Confidence', emoji: '💪' },
     ],
   },
+  {
+    id: 'favoriteBrands',
+    text: 'Name up to 3 brands whose style you love',
+    options: [],
+    freeText: true,
+  },
 ];
 
 export default function StyleQuestionnaire({
@@ -78,9 +85,11 @@ export default function StyleQuestionnaire({
   const isLastStep = currentStep === questions.length - 1;
   const currentAnswer = answers[question.id];
 
-  const hasAnswer = question.multiple
-    ? Array.isArray(currentAnswer) && currentAnswer.length > 0
-    : typeof currentAnswer === 'string' && currentAnswer.length > 0;
+  const hasAnswer = question.freeText
+    ? Array.isArray(currentAnswer) && currentAnswer.length > 0 && currentAnswer.some((v) => v.trim().length > 0)
+    : question.multiple
+      ? Array.isArray(currentAnswer) && currentAnswer.length > 0
+      : typeof currentAnswer === 'string' && currentAnswer.length > 0;
 
   const handleSelect = (value: string) => {
     if (question.multiple) {
@@ -163,12 +172,34 @@ export default function StyleQuestionnaire({
           {question.text}
         </h2>
 
-        {question.multiple && (
+        {question.multiple && !question.freeText && (
           <p className="text-xs text-charcoal-muted mb-3">Select all that apply</p>
         )}
 
-        {/* Options */}
-        <div className="grid grid-cols-2 gap-2.5">
+        {/* Free text input for brands */}
+        {question.freeText && (
+          <div className="space-y-2.5">
+            {[0, 1, 2].map((i) => (
+              <input
+                key={i}
+                type="text"
+                value={((answers[question.id] as string[] | undefined) ?? [])[i] ?? ''}
+                onChange={(e) => {
+                  const current = ((answers[question.id] as string[] | undefined) ?? []).slice();
+                  current[i] = e.target.value;
+                  setAnswers({ ...answers, [question.id]: current });
+                }}
+                placeholder={`Brand ${i + 1}${i === 0 ? '' : ' (optional)'}`}
+                className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
+              />
+            ))}
+            <p className="text-xs text-charcoal-muted">e.g., Aritzia, Uniqlo, COS</p>
+          </div>
+        )}
+
+        {/* Options grid */}
+        {!question.freeText && (
+          <div className="grid grid-cols-2 gap-2.5">
           {question.options.map(({ value, label, emoji }) => (
             <button
               key={value}
@@ -186,6 +217,7 @@ export default function StyleQuestionnaire({
             </button>
           ))}
         </div>
+        )}
 
         {error && (
           <p className="mt-4 text-sm text-red-600" role="alert">
