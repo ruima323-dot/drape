@@ -9,6 +9,7 @@ import OutfitJourney from './pages/OutfitJourney';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import ResetPassword from './pages/ResetPassword';
+import AuthCallback from './pages/AuthCallback';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth/confirm" element={<AuthCallback />} />
           <Route
             element={
               <ProtectedRoute>

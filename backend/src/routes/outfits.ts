@@ -16,10 +16,12 @@ import {
   listSavedOutfitsByUser,
   listOutfitPhotosByUser,
   deleteSavedOutfit,
+  countGenerationsToday,
 } from '../db/repositories/index.js';
 
 const VALID_OCCASIONS: OccasionContext[] = ['work', 'casual', 'night_out'];
 const MAX_NOTE_LENGTH = 280;
+const DAILY_GENERATION_LIMIT = 3;
 
 const router = Router();
 
@@ -85,6 +87,16 @@ router.post('/outfits/generate', async (req: Request, res: Response) => {
     if (!occasionContext || !VALID_OCCASIONS.includes(occasionContext)) {
       res.status(400).json({
         error: `occasionContext must be one of: ${VALID_OCCASIONS.join(', ')}`,
+      });
+      return;
+    }
+
+    // Rate limit: max generations per day during testing phase
+    const todayCount = await countGenerationsToday(userId);
+    if (todayCount >= DAILY_GENERATION_LIMIT) {
+      res.status(429).json({
+        error: `You've reached your daily limit of ${DAILY_GENERATION_LIMIT} outfit generations. Your limit resets tomorrow — check back then!`,
+        code: 'DAILY_LIMIT_REACHED',
       });
       return;
     }

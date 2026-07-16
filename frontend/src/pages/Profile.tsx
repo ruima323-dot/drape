@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { resolveImageUrl } from '../lib/imageUrl';
 import { supabase } from '../lib/supabase';
+import BrandAutocomplete from '../components/today/BrandAutocomplete';
 
 interface StylePreferences {
   aesthetic?: string[];
@@ -365,13 +366,11 @@ export default function Profile() {
         <p className="text-xs text-charcoal-muted">Brands whose style you admire</p>
         <div className="space-y-2">
           {[0, 1, 2].map((i) => (
-            <input
+            <BrandAutocomplete
               key={i}
-              type="text"
               value={(preferences.favoriteBrands ?? [])[i] ?? ''}
-              onChange={(e) => setBrand(i, e.target.value)}
+              onChange={(val) => setBrand(i, val)}
               placeholder={`Brand ${i + 1}${i > 0 ? ' (optional)' : ''}`}
-              className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
             />
           ))}
         </div>

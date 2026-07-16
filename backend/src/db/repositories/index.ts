@@ -15,6 +15,7 @@ export {
   createGeneratedOutfit,
   getGeneratedOutfitById,
   listGeneratedOutfitsByUser,
+  countGenerationsToday,
 } from './generatedOutfitRepository.js';
 
 export {

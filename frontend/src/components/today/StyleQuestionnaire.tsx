@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../../lib/api';
+import BrandAutocomplete from './BrandAutocomplete';
 
 interface StyleQuestionnaireProps {
   isOpen: boolean;
@@ -180,20 +181,18 @@ export default function StyleQuestionnaire({
         {question.freeText && (
           <div className="space-y-2.5">
             {[0, 1, 2].map((i) => (
-              <input
+              <BrandAutocomplete
                 key={i}
-                type="text"
                 value={((answers[question.id] as string[] | undefined) ?? [])[i] ?? ''}
-                onChange={(e) => {
+                onChange={(val) => {
                   const current = ((answers[question.id] as string[] | undefined) ?? []).slice();
-                  current[i] = e.target.value;
+                  current[i] = val;
                   setAnswers({ ...answers, [question.id]: current });
                 }}
                 placeholder={`Brand ${i + 1}${i === 0 ? '' : ' (optional)'}`}
-                className="w-full rounded-card border border-cream-400 bg-white px-3 py-2.5 text-charcoal text-sm focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors"
               />
             ))}
-            <p className="text-xs text-charcoal-muted">e.g., Aritzia, Uniqlo, COS</p>
+            <p className="text-xs text-charcoal-muted">Type to search, or enter any brand</p>
           </div>
         )}
 

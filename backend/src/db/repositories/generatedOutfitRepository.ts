@@ -66,6 +66,15 @@ export async function getGeneratedOutfitById(
   return rowToGeneratedOutfit(result.rows[0]);
 }
 
+export async function countGenerationsToday(userId: string): Promise<number> {
+  const result = await pool.query(
+    `SELECT COUNT(*) AS count FROM generated_outfits
+     WHERE user_id = $1 AND created_at >= CURRENT_DATE`,
+    [userId]
+  );
+  return parseInt(result.rows[0].count, 10);
+}
+
 export async function listGeneratedOutfitsByUser(
   userId: string
 ): Promise<GeneratedOutfit[]> {

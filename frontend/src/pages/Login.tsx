@@ -120,9 +120,18 @@ export default function Login() {
           <h1 className="text-4xl font-display font-bold text-charcoal tracking-tight">
             Drape
           </h1>
-          <p className="mt-2 text-charcoal-muted">
-            {isForgotPassword ? 'Reset your password' : isSignUp ? 'Create your account' : 'Sign in to your account'}
-          </p>
+          {isForgotPassword ? (
+            <p className="mt-2 text-charcoal-muted">Reset your password</p>
+          ) : isSignUp ? (
+            <div className="mt-3 space-y-1">
+              <p className="text-lg font-medium text-charcoal">Join Drape</p>
+              <p className="text-sm text-charcoal-muted">
+                Create a free account to get started with AI-powered styling
+              </p>
+            </div>
+          ) : (
+            <p className="mt-2 text-charcoal-muted">Sign in to your account</p>
+          )}
         </div>
 
         {isForgotPassword ? (
@@ -162,9 +171,8 @@ export default function Login() {
               Back to sign in
             </button>
           </form>
-        ) : (
-        <form onSubmit={handleSubmit} className="drape-card space-y-4">
-          {isSignUp && (
+        ) : isSignUp ? (
+          <form onSubmit={handleSubmit} className="drape-card space-y-4 border-2 border-gold/20">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-charcoal mb-1">
                 Name
@@ -176,55 +184,99 @@ export default function Login() {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
                 placeholder="Your name"
-                required={isSignUp}
+                required
               />
             </div>
-          )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-1">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-1">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              placeholder="••••••••"
-              required
-              minLength={6}
-            />
-          </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+                placeholder="At least 6 characters"
+                required
+                minLength={6}
+              />
+              <p className="mt-1 text-xs text-charcoal-muted">Must be at least 6 characters</p>
+            </div>
 
-          {error && (
-            <p className="text-sm text-red-600" role="alert">{error}</p>
-          )}
+            {error && (
+              <p className="text-sm text-red-600" role="alert">{error}</p>
+            )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full py-2.5 bg-charcoal text-cream-100 rounded-card text-sm font-medium hover:bg-charcoal-light transition-colors disabled:opacity-50"
-          >
-            {isSubmitting ? 'Please wait...' : isSignUp ? 'Create account' : 'Sign in'}
-          </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-2.5 bg-gold text-charcoal rounded-card text-sm font-semibold hover:bg-gold-muted transition-colors disabled:opacity-50"
+            >
+              {isSubmitting ? 'Creating account...' : 'Create account'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="drape-card space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-charcoal mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
 
-          {!isSignUp && (
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-charcoal mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 border border-cream-300 rounded-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm text-red-600" role="alert">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-2.5 bg-charcoal text-cream-100 rounded-card text-sm font-medium hover:bg-charcoal-light transition-colors disabled:opacity-50"
+            >
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
+            </button>
+
             <button
               type="button"
               onClick={() => { setIsForgotPassword(true); setError(null); }}
@@ -232,8 +284,7 @@ export default function Login() {
             >
               Forgot password?
             </button>
-          )}
-        </form>
+          </form>
         )}
 
         <p className="text-center text-sm text-charcoal-muted">

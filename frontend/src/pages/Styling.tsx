@@ -7,7 +7,7 @@ import type {
   AccessoryPlacement,
   AccessorySuggestion,
 } from '@drape/shared';
-import { api } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { resolveImageUrl } from '../lib/imageUrl';
 import ContextToggle from '../components/today/ContextToggle';
 import AvatarCard from '../components/today/AvatarCard';
@@ -32,6 +32,7 @@ export default function Styling() {
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   // Avatar config state
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig | null>(null);
@@ -77,7 +78,13 @@ export default function Styling() {
           setAvatarConfig(profileData.avatarConfig);
           if (profileData.avatarConfig.selfieUrl) {
             setHasSelfie(true);
+          } else {
+            // No selfie — prompt avatar setup
+            setIsAvatarModalOpen(true);
           }
+        } else {
+          // No avatar config at all — prompt setup
+          setIsAvatarModalOpen(true);
         }
         if (profileData.styleProfile && Object.keys(profileData.styleProfile.preferences).length > 0) {
           setHasStyleProfile(true);
@@ -136,9 +143,13 @@ export default function Styling() {
         // Refresh suggestions for the new outfit
         setSuggestionRefreshKey((k) => k + 1);
       } catch (err) {
-        setGenerateError(
-          err instanceof Error ? err.message : 'Failed to generate outfit. Please try again.',
-        );
+        if (err instanceof ApiError && err.status === 429) {
+          setShowLimitModal(true);
+        } else {
+          setGenerateError(
+            err instanceof Error ? err.message : 'Failed to generate outfit. Please try again.',
+          );
+        }
       } finally {
         setIsGenerating(false);
       }
@@ -275,6 +286,9 @@ export default function Styling() {
 
   const handleAvatarSave = (config: AvatarConfig) => {
     setAvatarConfig(config);
+    if (config.selfieUrl) {
+      setHasSelfie(true);
+    }
   };
 
   const handleOutfitSaved = () => {
@@ -397,6 +411,28 @@ export default function Styling() {
         onClose={() => setIsQuestionnaireOpen(false)}
         onComplete={handleQuestionnaireComplete}
       />
+
+      {/* Daily generation limit modal */}
+      {showLimitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl text-center space-y-4">
+            <div className="text-4xl">✨</div>
+            <h2 className="text-lg font-semibold text-charcoal">
+              Daily limit reached
+            </h2>
+            <p className="text-sm text-charcoal-muted">
+              During the testing phase, outfit generation is limited to 3 per day.
+              Your limit resets tomorrow — come back for fresh looks then!
+            </p>
+            <button
+              onClick={() => setShowLimitModal(false)}
+              className="mt-2 px-5 py-2.5 bg-charcoal text-cream-50 rounded-pill font-medium text-sm hover:bg-charcoal-light transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

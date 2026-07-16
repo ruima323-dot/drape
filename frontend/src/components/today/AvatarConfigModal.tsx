@@ -139,6 +139,16 @@ export default function AvatarConfigModal({
             <label className="block text-sm font-medium text-charcoal mb-2">
               Your Selfie
             </label>
+            <div className="mb-3 bg-cream-50 border border-cream-300 rounded-card px-3 py-2.5 text-xs text-charcoal-muted space-y-1">
+              <p className="font-medium text-charcoal text-sm">Tips for the best results:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Full-body or waist-up photo with good lighting</li>
+                <li>Stand against a plain, uncluttered background</li>
+                <li>Wear simple, form-fitting clothes (solid colors work best)</li>
+                <li>Face the camera straight-on with arms relaxed at your sides</li>
+                <li>Avoid heavy filters, sunglasses, or hats</li>
+              </ul>
+            </div>
 
             {selfiePreview ? (
               <div className="flex flex-col items-center gap-3">

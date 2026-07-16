@@ -56,7 +56,7 @@ export default function AvatarCard({
       </div>
 
       {/* Main image area */}
-      <div className="relative flex items-center justify-center min-h-[400px]">
+      <div className="relative flex items-center justify-center min-h-[300px] sm:min-h-[400px]">
         {isLoading ? (
           <div className="flex flex-col items-center gap-3 text-charcoal-muted">
             <svg
@@ -86,7 +86,7 @@ export default function AvatarCard({
           <img
             src={outfitImageUrl}
             alt={`Generated ${contextLabel[occasionContext]} outfit`}
-            className="w-full h-auto max-h-[500px] object-contain"
+            className="w-full h-auto object-contain"
           />
         ) : isLoadingBaseAvatar ? (
           <div className="flex flex-col items-center gap-3 text-charcoal-muted py-12">
@@ -119,7 +119,7 @@ export default function AvatarCard({
             <img
               src={baseAvatarUrl}
               alt="Your base avatar"
-              className="w-full h-auto max-h-[500px] object-contain"
+              className="w-full h-auto object-contain"
             />
             <div className="absolute bottom-4 left-0 right-0 text-center">
               <span className="bg-white/80 backdrop-blur-sm text-charcoal text-sm font-medium px-4 py-2 rounded-pill shadow-card">
