@@ -48,6 +48,18 @@ router.post('/chat', async (req: Request, res: Response) => {
 
     const firstName = user?.name?.split(' ')[0] ?? 'there';
 
+    // Determine current season based on month and user's location
+    const location = user?.avatarConfig?.location ?? '';
+    const month = new Date().getMonth();
+    const southernHemisphere = /australia|new zealand|argentina|brazil|chile|south africa|sydney|melbourne|buenos aires|são paulo|cape town/i.test(location);
+    let season: string;
+    if (month >= 2 && month <= 4) season = southernHemisphere ? 'autumn' : 'spring';
+    else if (month >= 5 && month <= 7) season = southernHemisphere ? 'winter' : 'summer';
+    else if (month >= 8 && month <= 10) season = southernHemisphere ? 'spring' : 'autumn';
+    else season = southernHemisphere ? 'summer' : 'winter';
+
+    const locationStr = location || 'unknown';
+
     // Build wardrobe summary
     const wardrobeSummary = wardrobeItems.length > 0
       ? wardrobeItems
@@ -60,11 +72,17 @@ router.post('/chat', async (req: Request, res: Response) => {
 Here is ${firstName}'s current wardrobe:
 ${wardrobeSummary}
 
+Context:
+- Current season: ${season}
+- Location: ${locationStr}
+- Today's date: ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+
 Rules:
 - Suggest outfits using ONLY items from their wardrobe listed above
 - If they ask for something they don't have items for, suggest what they could add
 - Be warm, concise, and specific — name exact items by color and type
-- Consider occasion, weather, and color coordination
+- ALWAYS consider the current season (${season}) — do not suggest heavy layers in summer or light items in winter
+- Consider occasion and color coordination
 - Keep responses short (2-4 sentences for simple questions, more for detailed outfit breakdowns)
 - If they ask about something unrelated to fashion/style, gently redirect`;
 
