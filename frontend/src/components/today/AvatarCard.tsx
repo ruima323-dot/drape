@@ -45,7 +45,7 @@ export default function AvatarCard({
 }: AvatarCardProps) {
   return (
     <div
-      className={`relative rounded-card-lg overflow-hidden transition-colors duration-300 ${contextBg[occasionContext]} border-2 ${contextBorder[occasionContext]}`}
+      className={`relative rounded-card-lg transition-colors duration-300 ${contextBg[occasionContext]} border-2 ${contextBorder[occasionContext]}`}
       data-testid="avatar-card"
     >
       {/* Occasion context overlay label */}
@@ -86,7 +86,7 @@ export default function AvatarCard({
           <img
             src={outfitImageUrl}
             alt={`Generated ${contextLabel[occasionContext]} outfit`}
-            className="w-full h-auto object-contain"
+            className="w-full h-auto object-contain rounded-card-lg"
           />
         ) : isLoadingBaseAvatar ? (
           <div className="flex flex-col items-center gap-3 text-charcoal-muted py-12">
@@ -119,7 +119,7 @@ export default function AvatarCard({
             <img
               src={baseAvatarUrl}
               alt="Your base avatar"
-              className="w-full h-auto object-contain"
+              className="w-full h-auto object-contain rounded-card-lg"
             />
             <div className="absolute bottom-4 left-0 right-0 text-center">
               <span className="bg-white/80 backdrop-blur-sm text-charcoal text-sm font-medium px-4 py-2 rounded-pill shadow-card">
