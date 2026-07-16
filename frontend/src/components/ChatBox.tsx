@@ -11,17 +11,34 @@ export default function ChatBox() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [viewportOffset, setViewportOffset] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Use visualViewport to handle iOS keyboard pushing the view
   useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (!isOpen) return;
+
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResize = () => {
+      // On iOS, when keyboard opens, visualViewport.height shrinks
+      // and offsetTop increases. We use this to position our chat.
+      setViewportOffset(vv.offsetTop);
+    };
+
+    vv.addEventListener('resize', handleResize);
+    vv.addEventListener('scroll', handleResize);
+    return () => {
+      vv.removeEventListener('resize', handleResize);
+      vv.removeEventListener('scroll', handleResize);
+    };
   }, [isOpen]);
 
   const sendMessage = async () => {
@@ -84,85 +101,100 @@ export default function ChatBox() {
     );
   }
 
+  // On mobile, use position absolute within a full-screen container
+  // to avoid iOS keyboard pushing fixed elements off-screen
   return (
-    <div className="fixed inset-x-0 top-14 bottom-14 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:w-96 sm:h-[500px] z-50 mx-2 sm:mx-0 bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300">
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 bg-charcoal text-cream-50">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Style Assistant</span>
-          <span className="w-2 h-2 bg-green-400 rounded-full" aria-hidden="true" />
-        </div>
-        <button
-          onClick={() => setIsOpen(false)}
-          className="text-cream-50/70 hover:text-cream-50 transition-colors"
-          aria-label="Close chat"
-        >
-          <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-      </div>
+    <>
+      {/* Full-screen overlay for mobile */}
+      <div
+        className="fixed inset-0 z-50 sm:hidden bg-charcoal/30"
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-        {messages.length === 0 && (
-          <div className="text-center text-charcoal-muted text-sm py-8">
-            <p className="font-medium mb-1">Hey! I'm your style assistant 👋</p>
-            <p>Ask me what to wear — I know your wardrobe.</p>
+      <div
+        ref={containerRef}
+        style={viewportOffset > 0 ? { top: `${viewportOffset}px` } : undefined}
+        className="fixed inset-x-3 top-4 bottom-16 sm:inset-auto sm:bottom-6 sm:right-6 sm:top-auto sm:w-96 sm:h-[500px] z-50 sm:mx-0 bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300"
+      >
+        {/* Header */}
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3 bg-charcoal text-cream-50">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Style Assistant</span>
+            <span className="w-2 h-2 bg-green-400 rounded-full" aria-hidden="true" />
           </div>
-        )}
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            <div
-              className={`max-w-[80%] px-3 py-2 rounded-card text-sm ${
-                msg.role === 'user'
-                  ? 'bg-charcoal text-cream-50'
-                  : 'bg-cream-200 text-charcoal'
-              }`}
-            >
-              {msg.content}
-            </div>
-          </div>
-        ))}
-        {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-cream-200 text-charcoal-muted px-3 py-2 rounded-card text-sm">
-              <span className="animate-pulse">Thinking...</span>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="px-4 py-3 border-t border-cream-300">
-        <div className="flex gap-2">
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="What should I wear today?"
-            disabled={isLoading}
-            className="flex-1 rounded-card border border-cream-400 bg-white px-3 py-2 text-sm text-charcoal focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors disabled:opacity-50"
-          />
           <button
-            onClick={sendMessage}
-            disabled={!input.trim() || isLoading}
-            className="px-3 py-2 bg-charcoal text-cream-50 rounded-card text-sm font-medium hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            onClick={() => setIsOpen(false)}
+            className="text-cream-50/70 hover:text-cream-50 transition-colors"
+            aria-label="Close chat"
           >
-            Send
+            <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
           </button>
         </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+          {messages.length === 0 && (
+            <div className="text-center text-charcoal-muted text-sm py-8">
+              <p className="font-medium mb-1">Hey! I'm your style assistant 👋</p>
+              <p>Ask me what to wear — I know your wardrobe.</p>
+            </div>
+          )}
+          {messages.map((msg, i) => (
+            <div
+              key={i}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] px-3 py-2 rounded-card text-sm ${
+                  msg.role === 'user'
+                    ? 'bg-charcoal text-cream-50'
+                    : 'bg-cream-200 text-charcoal'
+                }`}
+              >
+                {msg.content}
+              </div>
+            </div>
+          ))}
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-cream-200 text-charcoal-muted px-3 py-2 rounded-card text-sm">
+                <span className="animate-pulse">Thinking...</span>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div className="flex-shrink-0 px-4 py-3 border-t border-cream-300">
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="What should I wear today?"
+              disabled={isLoading}
+              className="flex-1 rounded-card border border-cream-400 bg-white px-3 py-2 text-sm text-charcoal focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-colors disabled:opacity-50"
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading}
+              className="px-3 py-2 bg-charcoal text-cream-50 rounded-card text-sm font-medium hover:bg-charcoal-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Send
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
