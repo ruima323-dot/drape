@@ -127,17 +127,17 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile bottom tab bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-cream-300 z-50 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-around h-12">
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t-2 border-cream-400 z-50 pb-[env(safe-area-inset-bottom)] shadow-[0_-2px_10px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center justify-around h-14">
           {navItems.map(({ to, shortLabel }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
+                `flex items-center justify-center px-4 py-2 rounded-pill transition-colors ${
                   isActive
-                    ? 'text-charcoal font-semibold'
+                    ? 'bg-cream-200 text-charcoal font-semibold'
                     : 'text-charcoal-muted'
                 }`
               }
