@@ -85,7 +85,7 @@ export default function ChatBox() {
   }
 
   return (
-    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100%-2rem)] sm:w-96 h-[60vh] sm:h-[500px] bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300">
+    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100%-2rem)] sm:w-96 max-h-[calc(100vh-10rem)] sm:max-h-[500px] h-[50vh] sm:h-[500px] bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-charcoal text-cream-50">
         <div className="flex items-center gap-2">
