@@ -84,6 +84,18 @@ router.get('/recommendations/daily', async (req: Request, res: Response) => {
       ? brands.filter(Boolean).join(', ')
       : 'not specified';
 
+    // Determine current season based on month and user's hemisphere (default Northern)
+    const location = user.avatarConfig?.location ?? '';
+    const month = new Date().getMonth(); // 0-indexed
+    const southernHemisphere = /australia|new zealand|argentina|brazil|chile|south africa|sydney|melbourne|buenos aires|são paulo|cape town/i.test(location);
+    let season: string;
+    if (month >= 2 && month <= 4) season = southernHemisphere ? 'autumn' : 'spring';
+    else if (month >= 5 && month <= 7) season = southernHemisphere ? 'winter' : 'summer';
+    else if (month >= 8 && month <= 10) season = southernHemisphere ? 'spring' : 'autumn';
+    else season = southernHemisphere ? 'summer' : 'winter';
+
+    const locationStr = location || 'not specified';
+
     const prompt = `You are a personal stylist. Based on this person's wardrobe and preferences, suggest ONE specific clothing item they should consider adding to their wardrobe.
 
 CURRENT WARDROBE:
@@ -94,9 +106,14 @@ STYLE PREFERENCES:
 - Color preference: ${colorPref}
 - Favorite brands: ${brandsStr}
 
+CONTEXT:
+- Current season: ${season}
+- Location: ${locationStr}
+
 RULES:
 - Suggest something they do NOT already own (check the wardrobe list carefully)
 - The item should fill a gap or complement their existing pieces
+- The item MUST be appropriate for the current season (${season}) — do not suggest heavy winter items in summer or light summer items in winter
 - Suggest from their favorite brands, or a brand with a similar aesthetic
 - Be specific: include color, material, and style details
 - Keep it practical and within their style
