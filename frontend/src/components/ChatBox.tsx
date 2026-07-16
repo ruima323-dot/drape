@@ -62,7 +62,7 @@ export default function ChatBox() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-charcoal text-cream-50 rounded-full shadow-card-elevated flex items-center justify-center hover:bg-charcoal-light transition-colors"
+        className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-14 h-14 bg-charcoal text-cream-50 rounded-full shadow-card-elevated flex items-center justify-center hover:bg-charcoal-light transition-colors"
         aria-label="Open style assistant"
       >
         <svg
@@ -85,7 +85,7 @@ export default function ChatBox() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 sm:w-96 h-[500px] bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300">
+    <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 w-[calc(100%-2rem)] sm:w-96 h-[60vh] sm:h-[500px] bg-white rounded-card-lg shadow-card-elevated flex flex-col overflow-hidden border border-cream-300">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-charcoal text-cream-50">
         <div className="flex items-center gap-2">

@@ -128,22 +128,21 @@ export default function Navbar() {
 
       {/* Mobile bottom tab bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-cream-300 z-50 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-around h-14">
-          {navItems.map(({ to, shortLabel, icon }) => (
+        <div className="flex items-center justify-around h-12">
+          {navItems.map(({ to, shortLabel }) => (
             <NavLink
               key={to}
               to={to}
               end={to === '/'}
               className={({ isActive }) =>
-                `flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-lg transition-colors ${
+                `flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${
                   isActive
-                    ? 'text-charcoal'
+                    ? 'text-charcoal font-semibold'
                     : 'text-charcoal-muted'
                 }`
               }
             >
-              <span className="text-lg" aria-hidden="true">{icon}</span>
-              <span className="text-[10px] font-medium leading-tight">{shortLabel}</span>
+              <span className="text-xs font-medium">{shortLabel}</span>
             </NavLink>
           ))}
         </div>
